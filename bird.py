@@ -37,3 +37,10 @@ class Bird:
         self.frame = frame % FRAME_COUNT
         self.left = DRAW_WIDTH / 2
         self.right = get_canvas_width() - DRAW_WIDTH / 2
+
+    def draw(self):
+        clip = frame_clip(self.frame, self.image.w, self.image.h)
+        self.image.clip_composite_draw(
+            *clip, 0, 'h' if self.direction < 0 else '',
+            self.x, self.y, DRAW_WIDTH, DRAW_HEIGHT,
+        )
