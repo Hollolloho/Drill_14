@@ -2,6 +2,8 @@
 
 from pico2d import get_canvas_width, load_image
 
+import game_framework
+
 PIXELS_PER_METER = 10.0 / 0.3
 FLIGHT_SPEED_KMPH = 18.0
 FLIGHT_SPEED_MPS = FLIGHT_SPEED_KMPH / 3.6
@@ -37,6 +39,21 @@ class Bird:
         self.frame = frame % FRAME_COUNT
         self.left = DRAW_WIDTH / 2
         self.right = get_canvas_width() - DRAW_WIDTH / 2
+
+    def advance(self, dt):
+        if dt <= 0:
+            return
+        distance = FLIGHT_SPEED_PPS * dt
+        span = self.right - self.left
+        offset = self.x - self.left
+        # 왕복 경로를 펼친 뒤 접으면 여러 경계를 넘어도 이동량을 잃지 않는다.
+        progress = offset if self.direction > 0 else 2 * span - offset
+        progress = (progress + distance) % (2 * span)
+        self.x = self.left + min(progress, 2 * span - progress)
+        self.direction = 1 if progress < span else -1
+
+    def update(self):
+        self.advance(game_framework.frame_time)
 
     def draw(self):
         clip = frame_clip(self.frame, self.image.w, self.image.h)
