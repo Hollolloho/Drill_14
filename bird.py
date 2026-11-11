@@ -1,6 +1,6 @@
 """실제 이동 거리에 날갯짓을 맞추는 새."""
 
-from pico2d import get_canvas_width, load_image
+from pico2d import get_canvas_height, get_canvas_width, load_image
 
 import game_framework
 
@@ -16,6 +16,7 @@ FRAME_ROWS = 3
 FRAME_COUNT = 14  # 마지막 행의 오른쪽 끝은 빈 칸이다.
 DRAW_WIDTH = 92
 DRAW_HEIGHT = 84
+FLOCK_SIZE = 10
 
 
 def frame_clip(frame, image_width, image_height):
@@ -65,3 +66,18 @@ class Bird:
             *clip, 0, 'h' if self.direction < 0 else '',
             self.x, self.y, DRAW_WIDTH, DRAW_HEIGHT,
         )
+
+
+def create_flock():
+    """하늘의 두 줄에 다섯 마리씩 배치하고 날갯짓 시작 시점을 분산한다."""
+    width, height = get_canvas_width(), get_canvas_height()
+    birds = []
+    for index in range(FLOCK_SIZE):
+        row, column = divmod(index, 5)
+        birds.append(Bird(
+            width * (column + 1) / 6,
+            height * (0.65 + row * 0.17),
+            direction=1 if row == 0 else -1,
+            frame=index * FRAME_COUNT / FLOCK_SIZE,
+        ))
+    return birds
