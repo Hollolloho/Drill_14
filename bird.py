@@ -1,5 +1,7 @@
 """실제 이동 거리에 날갯짓을 맞추는 새."""
 
+from pico2d import get_canvas_width, load_image
+
 PIXELS_PER_METER = 10.0 / 0.3
 FLIGHT_SPEED_KMPH = 18.0
 FLIGHT_SPEED_MPS = FLIGHT_SPEED_KMPH / 3.6
@@ -22,3 +24,16 @@ def frame_clip(frame, image_width, image_height):
     top = row * image_height // FRAME_ROWS
     bottom = (row + 1) * image_height // FRAME_ROWS
     return left, image_height - bottom, right - left, bottom - top
+
+
+class Bird:
+    image = None
+
+    def __init__(self, x, y, direction=1, frame=0.0):
+        if Bird.image is None:
+            Bird.image = load_image('bird_animation.png')
+        self.x, self.y = x, y
+        self.direction = direction
+        self.frame = frame % FRAME_COUNT
+        self.left = DRAW_WIDTH / 2
+        self.right = get_canvas_width() - DRAW_WIDTH / 2
