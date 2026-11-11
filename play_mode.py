@@ -2,6 +2,7 @@ from pico2d import *
 import game_world
 import game_framework
 from boy import Boy
+from bird import create_flock
 from grass import Grass
 
 boy = None
@@ -29,6 +30,9 @@ def init():
 
     grass = Grass()
     game_world.add_oject(grass, 0)
+
+    for bird in create_flock():
+        game_world.add_oject(bird)
 
 
 def pause():
