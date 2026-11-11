@@ -1,0 +1,24 @@
+"""실제 이동 거리에 날갯짓을 맞추는 새."""
+
+PIXELS_PER_METER = 10.0 / 0.3
+FLIGHT_SPEED_KMPH = 18.0
+FLIGHT_SPEED_MPS = FLIGHT_SPEED_KMPH / 3.6
+FLIGHT_SPEED_PPS = FLIGHT_SPEED_MPS * PIXELS_PER_METER
+WINGBEAT_DISTANCE_M = 2.5
+WINGBEAT_DISTANCE_PX = WINGBEAT_DISTANCE_M * PIXELS_PER_METER
+
+FRAME_COLUMNS = 5
+FRAME_ROWS = 3
+FRAME_COUNT = 14  # 마지막 행의 오른쪽 끝은 빈 칸이다.
+DRAW_WIDTH = 92
+DRAW_HEIGHT = 84
+
+
+def frame_clip(frame, image_width, image_height):
+    """위에서 아래로 읽은 프레임을 pico2d의 아래쪽 원점으로 변환한다."""
+    row, column = divmod(int(frame) % FRAME_COUNT, FRAME_COLUMNS)
+    left = column * image_width // FRAME_COLUMNS
+    right = (column + 1) * image_width // FRAME_COLUMNS
+    top = row * image_height // FRAME_ROWS
+    bottom = (row + 1) * image_height // FRAME_ROWS
+    return left, image_height - bottom, right - left, bottom - top
