@@ -51,6 +51,10 @@ class Bird:
         progress = (progress + distance) % (2 * span)
         self.x = self.left + min(progress, 2 * span - progress)
         self.direction = 1 if progress < span else -1
+        # 순변위가 아니라 실제 이동 거리로 계산해 반사 때도 날갯짓을 이어 간다.
+        self.frame = (
+            self.frame + distance / WINGBEAT_DISTANCE_PX * FRAME_COUNT
+        ) % FRAME_COUNT
 
     def update(self):
         self.advance(game_framework.frame_time)
