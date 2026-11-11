@@ -12,21 +12,20 @@ WINGBEAT_DISTANCE_M = 2.5
 WINGBEAT_DISTANCE_PX = WINGBEAT_DISTANCE_M * PIXELS_PER_METER
 
 FRAME_COLUMNS = 5
-FRAME_ROWS = 3
 FRAME_COUNT = 14  # 마지막 행의 오른쪽 끝은 빈 칸이다.
+SOURCE_COLUMN_WIDTH = 182  # 원본 오른쪽의 8픽셀은 여백이다.
+SOURCE_ROW_BOUNDS = (0, 180, 352, 506)
+SOURCE_BEAK_Y = (103, 264, 442)
 DRAW_WIDTH = 92
-DRAW_HEIGHT = 84
+DRAW_SCALE = DRAW_WIDTH / SOURCE_COLUMN_WIDTH
 FLOCK_SIZE = 10
 
 
-def frame_clip(frame, image_width, image_height):
-    """위에서 아래로 읽은 프레임을 pico2d의 아래쪽 원점으로 변환한다."""
+def frame_clip(frame, image_height):
+    """불규칙한 원본 행 범위를 pico2d의 아래쪽 원점으로 변환한다."""
     row, column = divmod(int(frame) % FRAME_COUNT, FRAME_COLUMNS)
-    left = column * image_width // FRAME_COLUMNS
-    right = (column + 1) * image_width // FRAME_COLUMNS
-    top = row * image_height // FRAME_ROWS
-    bottom = (row + 1) * image_height // FRAME_ROWS
-    return left, image_height - bottom, right - left, bottom - top
+    top, bottom = SOURCE_ROW_BOUNDS[row:row + 2]
+    return column * SOURCE_COLUMN_WIDTH, image_height - bottom, SOURCE_COLUMN_WIDTH, bottom - top
 
 
 class Bird:
@@ -61,10 +60,14 @@ class Bird:
         self.advance(game_framework.frame_time)
 
     def draw(self):
-        clip = frame_clip(self.frame, self.image.w, self.image.h)
+        clip = frame_clip(self.frame, self.image.h)
+        row = int(self.frame) // FRAME_COLUMNS
+        source_center_y = self.image.h - clip[1] - clip[3] / 2
+        # 행별 부리 높이를 맞추고 모든 프레임을 같은 비율로 축소한다.
+        draw_y = self.y + (SOURCE_BEAK_Y[row] - source_center_y) * DRAW_SCALE
         self.image.clip_composite_draw(
             *clip, 0, 'h' if self.direction < 0 else '',
-            self.x, self.y, DRAW_WIDTH, DRAW_HEIGHT,
+            self.x, draw_y, DRAW_WIDTH, clip[3] * DRAW_SCALE,
         )
 
 
